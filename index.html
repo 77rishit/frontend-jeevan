@@ -12,8 +12,7 @@ body {
   justify-content:center;
   align-items:center;
   font-family:Arial;
-  background-size:cover;
-  transition:1s;
+  background:#111;
 }
 
 .container {
@@ -21,7 +20,7 @@ body {
   max-width:400px;
   padding:20px;
   border-radius:20px;
-  background:rgba(0,0,0,0.6);
+  background:#2c2c2c;
   color:white;
   text-align:center;
 }
@@ -31,6 +30,7 @@ textarea {
   height:100px;
   border-radius:10px;
   padding:10px;
+  margin-top:10px;
 }
 
 button {
@@ -40,6 +40,8 @@ button {
   border:none;
   border-radius:10px;
   color:white;
+  font-size:15px;
+  cursor:pointer;
 }
 
 .analyze {background:red;}
@@ -50,6 +52,9 @@ button {
   margin-top:15px;
   padding:10px;
   border-radius:10px;
+  background:#444;
+  text-align:left;
+  white-space:pre-line;
 }
 </style>
 </head>
@@ -57,6 +62,7 @@ button {
 <body>
 
 <div class="container">
+
 <h2>🚑 Jeevan Rakshak AI</h2>
 
 <select id="lang">
@@ -65,105 +71,96 @@ button {
 <option value="gu">ગુજરાતી</option>
 </select>
 
-<p>Enter symptoms:</p>
-<textarea id="symptoms"></textarea>
+<p id="label">Enter your symptoms:</p>
 
-<button class="analyze" onclick="analyze()">Analyze</button>
-<button class="speak" onclick="voice()">Speak</button>
-<button class="map" onclick="map()">Nearby Hospital</button>
+<textarea id="symptoms" placeholder="fever, chest pain..."></textarea>
 
-<div id="loader" style="display:none;">Processing...</div>
+<button class="analyze" onclick="analyze()">🔍 Analyze</button>
+<button class="speak" onclick="speak()">🎤 Speak</button>
+<button class="map" onclick="openMap()">🏥 Nearby Hospital</button>
+
 <div id="resultBox"></div>
 
 </div>
 
 <script>
 
+/* ANALYZE FUNCTION */
 async function analyze(){
 
-let s=document.getElementById("symptoms").value;
-let lang=document.getElementById("lang").value;
+let s = document.getElementById("symptoms").value;
+let lang = document.getElementById("lang").value;
 
 if(!s){
 alert("Enter symptoms");
 return;
 }
 
-let res=await fetch("https://jeevanrakshakai.onrender.com/analyze",{
+try {
+
+let res = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
 method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
-body:JSON.stringify({
-symptoms:s,
-lang:lang
+body: JSON.stringify({
+symptoms: s,
+lang: lang
 })
 });
 
-let data=await res.json();
+let data = await res.json();
 
-document.getElementById("resultBox").innerHTML=
-"<b>"+data.level+"</b><br><br>"+data.advice;
+/* DISPLAY RESULT */
+document.getElementById("resultBox").innerHTML =
+"<b>" + data.level + "</b><br><br>" + data.advice;
+
+} catch(err){
+alert("Server error");
+}
+
 }
 
 
-/* SPEAK */
+/* SPEAK FUNCTION */
 function speak(){
 
-let text=document.getElementById("resultBox").innerText;
-let lang=document.getElementById("lang").value;
+let text = document.getElementById("resultBox").innerText;
+let lang = document.getElementById("lang").value;
 
 if(!text){
-alert("No result");
+alert("No result to speak");
 return;
 }
 
-let speech=new SpeechSynthesisUtterance(text);
+let speech = new SpeechSynthesisUtterance(text);
 
-if(lang==="hi") speech.lang="hi-IN";
-else if(lang==="gu") speech.lang="gu-IN";
-else speech.lang="en-IN";
+if(lang === "hi") speech.lang = "hi-IN";
+else if(lang === "gu") speech.lang = "gu-IN";
+else speech.lang = "en-IN";
 
 window.speechSynthesis.speak(speech);
+
 }
 
-// 🏥 Map
-function map(){
+
+/* GOOGLE MAP */
+function openMap(){
 window.open("https://www.google.com/maps/search/hospital+near+me");
 }
-</script>
 
-// 🔍 Analyze
-async function analyze(){
 
-let s=document.getElementById("symptoms").value;
+/* LABEL CHANGE */
+document.getElementById("lang").addEventListener("change", function(){
 
-if(!s){alert("Enter symptoms");return;}
+let l = this.value;
+let label = document.getElementById("label");
 
-let loader=document.getElementById("loader");
-let box=document.getElementById("resultBox");
+if(l === "hi") label.innerText = "अपने लक्षण लिखें:";
+else if(l === "gu") label.innerText = "તમારા લક્ષણો લખો:";
+else label.innerText = "Enter your symptoms:";
 
-loader.style.display="block";
-box.innerHTML="";
-
-let res=await fetch("https://jeevanrakshakai.onrender.com/analyze",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({symptoms:s})
 });
-
-let data=await res.json();
-
-loader.style.display="none";
-
-if(data.level.includes("Critical")) box.style.background="red";
-else if(data.level.includes("Moderate")) box.style.background="orange";
-else box.style.background="green";
-
-box.innerHTML=
-"<b>Level:</b> "+data.level+
-"<br><br>"+data.advice.replace(/\n/g,"<br>");
-}
 
 </script>
 
