@@ -1,0 +1,16 @@
+{
+  "name": "Jeevan Rakshak AI",
+  "short_name": "JeevanAI",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#ff4b2b",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2966/2966488.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
+

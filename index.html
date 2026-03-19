@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="manifest" href="manifest.json">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🚑 Jeevan Rakshak AI</title>
@@ -130,6 +131,9 @@ button {
     <button class="analyze" onclick="analyze()">🔍 Analyze</button>
     <button class="voice" onclick="startVoice()">🎤 Speak</button>
     <button class="map" onclick="openMap()">🏥 Nearby Hospital</button>
+<div id="loader" style="display:none; margin-top:10px; font-size:16px;">
+  ⏳ Processing...
+</div>
 
     <div id="resultBox"></div>
 
@@ -171,30 +175,57 @@ document.getElementById("lang").addEventListener("change", function() {
 async function analyze() {
   let symptoms = document.getElementById("symptoms").value;
 
-  let response = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ symptoms })
-  });
+  if (!symptoms) {
+    alert("Enter symptoms");
+    return;
+  }
 
-  let data = await response.json();
+  // 🔄 Show loader
+  document.getElementById("loader").style.display = "block";
 
-  document.getElementById("resultBox").innerHTML =
-    "<b>Level:</b> " + data.level + "<br><b>Advice:</b> " + data.advice;
-}
+  try {
+    let response = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ symptoms })
+    });
 
-// Voice
-function startVoice() {
-  let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.onresult = e => {
-    document.getElementById("symptoms").value = e.results[0][0].transcript;
-  };
-  recognition.start();
+    let data = await response.json();
+
+    // ❌ Hide loader
+    document.getElementById("loader").style.display = "none";
+
+    let box = document.getElementById("resultBox");
+
+    // 🎨 Dynamic color
+    if (data.level.includes("Critical")) {
+      box.style.background = "red";
+    } else if (data.level.includes("Moderate")) {
+      box.style.background = "orange";
+    } else {
+      box.style.background = "green";
+    }
+
+    // 🧾 Show result
+    box.innerHTML =
+      "<b>Level:</b> " + data.level + "<br><b>Advice:</b> " + data.advice;
+
+    // 🔊 Speak result
+    speak(data.advice);
+
+  } catch (error) {
+    document.getElementById("loader").style.display = "none";
+    alert("Server error");
+    console.log(error);
+  }
 }
 
 // Map
 function openMap() {
   window.open("https://www.google.com/maps/search/hospital+near+me");
+}
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
 }
 </script>
 
