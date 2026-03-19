@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="manifest" href="manifest.json">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🚑 Jeevan Rakshak AI</title>
@@ -34,14 +33,14 @@ body {
 .overlay {
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0,0,0,0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
 }
 
-/* Container */
+/* Glass UI */
 .container {
   width: 100%;
   max-width: 600px;
@@ -51,29 +50,20 @@ body {
   backdrop-filter: blur(20px);
   text-align: center;
   color: white;
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
 }
 
-/* Heading */
 h1 {
-  font-size: 28px;
   margin-bottom: 15px;
 }
 
-/* Dropdown */
-select {
+/* Inputs */
+select, textarea {
   width: 100%;
   padding: 10px;
   border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-/* Input */
-textarea {
-  width: 100%;
-  height: 100px;
-  border-radius: 10px;
-  padding: 10px;
-  font-size: 14px;
+  margin-top: 10px;
+  border: none;
 }
 
 /* Buttons */
@@ -83,7 +73,7 @@ button {
   padding: 12px;
   border-radius: 10px;
   border: none;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
 }
 
@@ -91,20 +81,17 @@ button {
 .voice { background: #28a745; color: white; }
 .map { background: #007bff; color: white; }
 
+#loader {
+  display: none;
+  margin-top: 10px;
+}
+
 /* Result */
 #resultBox {
   margin-top: 15px;
   padding: 15px;
   border-radius: 10px;
   background: rgba(0,0,0,0.7);
-  font-size: 16px;
-}
-
-/* 💻 Desktop improvements */
-@media (min-width: 768px) {
-  h1 { font-size: 36px; }
-  textarea { height: 120px; font-size: 16px; }
-  button { font-size: 16px; }
 }
 </style>
 </head>
@@ -131,9 +118,8 @@ button {
     <button class="analyze" onclick="analyze()">🔍 Analyze</button>
     <button class="voice" onclick="startVoice()">🎤 Speak</button>
     <button class="map" onclick="openMap()">🏥 Nearby Hospital</button>
-<div id="loader" style="display:none; margin-top:10px; font-size:16px;">
-  ⏳ Processing...
-</div>
+
+    <div id="loader">⏳ Processing...</div>
 
     <div id="resultBox"></div>
 
@@ -141,7 +127,7 @@ button {
 </div>
 
 <script>
-// Background images
+// 🌄 Background
 const images = [
   "https://picsum.photos/1920/1080?1",
   "https://picsum.photos/1920/1080?2",
@@ -150,17 +136,15 @@ const images = [
 ];
 
 let index = 0;
-
 function changeBackground() {
   document.getElementById("bg").style.backgroundImage =
     `url(${images[index]})`;
   index = (index + 1) % images.length;
 }
-
 setInterval(changeBackground, 5000);
 changeBackground();
 
-// Language
+// 🌍 Language labels
 const text = {
   en: "Enter your symptoms:",
   hi: "अपने लक्षण लिखें:",
@@ -171,7 +155,60 @@ document.getElementById("lang").addEventListener("change", function() {
   document.getElementById("label").innerText = text[this.value];
 });
 
-// Analyze
+// 🔊 Speak
+function speak(text) {
+  let lang = document.getElementById("lang").value;
+
+  let speech = new SpeechSynthesisUtterance(text);
+
+  if (lang === "hi") speech.lang = "hi-IN";
+  else if (lang === "gu") speech.lang = "gu-IN";
+  else speech.lang = "en-IN";
+
+  window.speechSynthesis.speak(speech);
+}
+
+// 🎤 Voice Input
+function startVoice() {
+  let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "en-IN";
+  recognition.onresult = e => {
+    document.getElementById("symptoms").value = e.results[0][0].transcript;
+  };
+  recognition.start();
+}
+
+// 🏥 Map
+function openMap() {
+  window.open("https://www.google.com/maps/search/hospital+near+me");
+}
+
+// 🌍 TRANSLATION FUNCTION
+function translate(text, lang) {
+
+  const translations = {
+    "Consult a doctor soon. Monitor symptoms and take rest.": {
+      hi: "जल्दी डॉक्टर से मिलें। लक्षणों पर ध्यान दें और आराम करें।",
+      gu: "જલ્દી ડોક્ટરને મળો. લક્ષણો પર ધ્યાન આપો અને આરામ કરો."
+    },
+    "Immediate medical attention required!": {
+      hi: "तुरंत चिकित्सा सहायता की आवश्यकता है!",
+      gu: "તાત્કાલિક સારવાર જરૂરી છે!"
+    },
+    "Take rest and stay hydrated.": {
+      hi: "आराम करें और पानी पीते रहें।",
+      gu: "આરામ કરો અને પાણી પીતા રહો."
+    }
+  };
+
+  if (translations[text] && translations[text][lang]) {
+    return translations[text][lang];
+  }
+
+  return text;
+}
+
+// 🚀 ANALYZE FUNCTION
 async function analyze() {
   let symptoms = document.getElementById("symptoms").value;
 
@@ -180,24 +217,29 @@ async function analyze() {
     return;
   }
 
-  // 🔄 Show loader
-  document.getElementById("loader").style.display = "block";
+  let loader = document.getElementById("loader");
+  let box = document.getElementById("resultBox");
+
+  loader.style.display = "block";
 
   try {
-    let response = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
+    await fetch("https://jeevanrakshakai.onrender.com");
+
+    const response = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ symptoms })
     });
 
-    let data = await response.json();
+    if (!response.ok) {
+      throw new Error("API error");
+    }
 
-    // ❌ Hide loader
-    document.getElementById("loader").style.display = "none";
+    const data = await response.json();
 
-    let box = document.getElementById("resultBox");
+    loader.style.display = "none";
 
-    // 🎨 Dynamic color
+    // 🎨 Color
     if (data.level.includes("Critical")) {
       box.style.background = "red";
     } else if (data.level.includes("Moderate")) {
@@ -206,26 +248,32 @@ async function analyze() {
       box.style.background = "green";
     }
 
-    // 🧾 Show result
-    box.innerHTML =
-      "<b>Level:</b> " + data.level + "<br><b>Advice:</b> " + data.advice;
+    let lang = document.getElementById("lang").value;
 
-    // 🔊 Speak result
-    speak(data.advice);
+    let translatedAdvice = translate(data.advice, lang);
+
+    let levelText = "Level";
+    let adviceText = "Advice";
+
+    if (lang === "hi") {
+      levelText = "स्तर";
+      adviceText = "सलाह";
+    }
+    if (lang === "gu") {
+      levelText = "સ્તર";
+      adviceText = "સલાહ";
+    }
+
+    box.innerHTML =
+      "<b>" + levelText + ":</b> " + data.level +
+      "<br><b>" + adviceText + ":</b> " + translatedAdvice;
+
+    speak(translatedAdvice);
 
   } catch (error) {
-    document.getElementById("loader").style.display = "none";
-    alert("Server error");
-    console.log(error);
+    loader.style.display = "none";
+    box.innerHTML = "⚠️ Server not responding. Try again.";
   }
-}
-
-// Map
-function openMap() {
-  window.open("https://www.google.com/maps/search/hospital+near+me");
-}
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js");
 }
 </script>
 
