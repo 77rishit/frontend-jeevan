@@ -79,33 +79,61 @@ button {
 
 <script>
 
-// 🌄 Background rotation
-let imgs = [
-"https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-"https://images.unsplash.com/photo-1501785888041-af3ef285b470",
-"https://images.unsplash.com/photo-1470770841072-f978cf4d019e"
-];
+async function analyze(){
 
-let i=0;
-setInterval(()=>{
-document.body.style.backgroundImage="url("+imgs[i]+")";
-i=(i+1)%imgs.length;
-},5000);
+let s=document.getElementById("symptoms").value;
+let lang=document.getElementById("lang").value;
 
-
-// 🎤 Voice (Chrome only)
-function voice(){
-if(!('webkitSpeechRecognition'in window)){
-alert("Use Chrome");
+if(!s){
+alert("Enter symptoms");
 return;
 }
-let rec=new webkitSpeechRecognition();
-rec.start();
-rec.onresult=e=>{
-document.getElementById("symptoms").value=e.results[0][0].transcript;
-};
+
+let res=await fetch("https://jeevanrakshakai.onrender.com/analyze",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+symptoms:s,
+lang:lang
+})
+});
+
+let data=await res.json();
+
+document.getElementById("resultBox").innerHTML=
+"<b>"+data.level+"</b><br><br>"+data.advice;
 }
 
+
+/* SPEAK */
+function speak(){
+
+let text=document.getElementById("resultBox").innerText;
+let lang=document.getElementById("lang").value;
+
+if(!text){
+alert("No result");
+return;
+}
+
+let speech=new SpeechSynthesisUtterance(text);
+
+if(lang==="hi") speech.lang="hi-IN";
+else if(lang==="gu") speech.lang="gu-IN";
+else speech.lang="en-IN";
+
+window.speechSynthesis.speak(speech);
+}
+
+
+/* MAP */
+function map(){
+window.open("https://www.google.com/maps/search/hospital+near+me");
+}
+
+</script>
 
 // 🏥 Map
 function map(){
