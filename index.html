@@ -206,7 +206,10 @@ async function analyze() {
   let box = document.getElementById("resultBox");
 
   loader.style.display = "block";
-  box.innerHTML = "";
+  box.innerHTML =
+  "<b>" + levelText + ":</b> " + data.level +
+  "<br><br>" +
+  translatedAdvice.replace(/\n/g, "<br>");;
 
   try {
     const response = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
