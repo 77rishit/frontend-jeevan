@@ -124,7 +124,7 @@ function startVoice(lang) {
 async function analyze() {
   let symptoms = document.getElementById("symptoms").value;
 
-  let response = await fetch("http://127.0.0.1:8000/analyze", {
+  let response = await fetch("https://jeevanrakshak-ai.onrender.com/analyze", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ symptoms })
