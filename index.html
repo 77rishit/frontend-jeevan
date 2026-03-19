@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🚑 Jeevan Rakshak AI</title>
 
 <style>
@@ -17,7 +18,7 @@ body {
   overflow: hidden;
 }
 
-/* 🌄 Background slider */
+/* Background */
 .bg {
   position: fixed;
   width: 100%;
@@ -36,47 +37,42 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
 }
 
-/* Glass UI */
+/* Container */
 .container {
-  width: 90%;
-  max-width: 650px;
-  padding: 30px;
+  width: 100%;
+  max-width: 600px;
+  padding: 25px;
   border-radius: 20px;
   background: rgba(255,255,255,0.12);
   backdrop-filter: blur(20px);
   text-align: center;
   color: white;
-  box-shadow: 0 0 40px rgba(0,0,0,0.6);
-  animation: fadeIn 1s ease;
-}
-
-@keyframes fadeIn {
-  from {opacity: 0; transform: translateY(20px);}
-  to {opacity: 1;}
 }
 
 /* Heading */
 h1 {
+  font-size: 28px;
   margin-bottom: 15px;
 }
 
 /* Dropdown */
 select {
+  width: 100%;
   padding: 10px;
   border-radius: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 /* Input */
 textarea {
   width: 100%;
-  height: 120px;
-  border-radius: 12px;
-  border: none;
-  padding: 12px;
-  font-size: 15px;
+  height: 100px;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
 }
 
 /* Buttons */
@@ -84,28 +80,30 @@ button {
   width: 100%;
   margin-top: 10px;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 10px;
   border: none;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  transform: scale(1.05);
 }
 
 .analyze { background: #ff4b2b; color: white; }
 .voice { background: #28a745; color: white; }
 .map { background: #007bff; color: white; }
 
-/* Result box */
+/* Result */
 #resultBox {
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 12px;
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 10px;
   background: rgba(0,0,0,0.7);
-  font-size: 18px;
+  font-size: 16px;
+}
+
+/* 💻 Desktop improvements */
+@media (min-width: 768px) {
+  h1 { font-size: 36px; }
+  textarea { height: 120px; font-size: 16px; }
+  button { font-size: 16px; }
 }
 </style>
 </head>
@@ -119,7 +117,6 @@ button:hover {
 
     <h1>🚑 Jeevan Rakshak AI</h1>
 
-    <!-- 🌍 Language -->
     <select id="lang">
       <option value="en">English</option>
       <option value="hi">हिंदी</option>
@@ -128,27 +125,24 @@ button:hover {
 
     <p id="label">Enter your symptoms:</p>
 
-    <!-- Input -->
     <textarea id="symptoms" placeholder="e.g. fever, chest pain"></textarea>
 
-    <!-- Buttons -->
     <button class="analyze" onclick="analyze()">🔍 Analyze</button>
     <button class="voice" onclick="startVoice()">🎤 Speak</button>
     <button class="map" onclick="openMap()">🏥 Nearby Hospital</button>
 
-    <!-- Result -->
     <div id="resultBox"></div>
 
   </div>
 </div>
 
 <script>
-// 🌄 Background Images
+// Background images
 const images = [
-  "https://images.unsplash.com/photo-1588776814546-ec7e3f7f9e1b",
-  "https://images.unsplash.com/photo-1579684385127-1ef15d508118",
-  "https://images.unsplash.com/photo-1580281657527-47a1bba1c7c3",
-  "https://images.unsplash.com/photo-1584515933487-779824d29309"
+  "https://picsum.photos/1920/1080?1",
+  "https://picsum.photos/1920/1080?2",
+  "https://picsum.photos/1920/1080?3",
+  "https://picsum.photos/1920/1080?4"
 ];
 
 let index = 0;
@@ -162,26 +156,20 @@ function changeBackground() {
 setInterval(changeBackground, 5000);
 changeBackground();
 
-// 🌍 Language text
+// Language
 const text = {
-  en: { label: "Enter your symptoms:" },
-  hi: { label: "अपने लक्षण लिखें:" },
-  gu: { label: "તમારા લક્ષણો લખો:" }
+  en: "Enter your symptoms:",
+  hi: "अपने लक्षण लिखें:",
+  gu: "તમારા લક્ષણો લખો:"
 };
 
 document.getElementById("lang").addEventListener("change", function() {
-  let lang = this.value;
-  document.getElementById("label").innerText = text[lang].label;
+  document.getElementById("label").innerText = text[this.value];
 });
 
-// 🚀 Analyze
+// Analyze
 async function analyze() {
   let symptoms = document.getElementById("symptoms").value;
-
-  if (!symptoms) {
-    alert("Enter symptoms");
-    return;
-  }
 
   let response = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
     method: "POST",
@@ -195,7 +183,7 @@ async function analyze() {
     "<b>Level:</b> " + data.level + "<br><b>Advice:</b> " + data.advice;
 }
 
-// 🎤 Voice
+// Voice
 function startVoice() {
   let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.onresult = e => {
@@ -204,7 +192,7 @@ function startVoice() {
   recognition.start();
 }
 
-// 🏥 Map
+// Map
 function openMap() {
   window.open("https://www.google.com/maps/search/hospital+near+me");
 }
