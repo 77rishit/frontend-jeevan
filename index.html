@@ -14,47 +14,59 @@
 
 body {
   height: 100vh;
-  width: 100vw;
-  background: url('https://images.unsplash.com/photo-1588776814546-ec7e3f7f9e1b') no-repeat center/cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  overflow: hidden;
+}
+
+/* 🌄 Background slider */
+.bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: background-image 1s ease-in-out;
+  z-index: -2;
 }
 
 /* Overlay */
 .overlay {
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.65);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Main Card */
+/* Glass UI */
 .container {
   width: 90%;
-  max-width: 600px;
+  max-width: 650px;
   padding: 30px;
   border-radius: 20px;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(20px);
   text-align: center;
   color: white;
-  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1;}
 }
 
 /* Heading */
 h1 {
-  font-size: 36px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
-/* Language dropdown */
+/* Dropdown */
 select {
   padding: 10px;
   border-radius: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 /* Input */
@@ -63,8 +75,8 @@ textarea {
   height: 120px;
   border-radius: 12px;
   border: none;
-  padding: 15px;
-  font-size: 16px;
+  padding: 12px;
+  font-size: 15px;
 }
 
 /* Buttons */
@@ -76,17 +88,22 @@ button {
   border: none;
   font-size: 16px;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
 }
 
 .analyze { background: #ff4b2b; color: white; }
 .voice { background: #28a745; color: white; }
 .map { background: #007bff; color: white; }
 
-/* Result */
+/* Result box */
 #resultBox {
   margin-top: 20px;
   padding: 20px;
-  border-radius: 15px;
+  border-radius: 12px;
   background: rgba(0,0,0,0.7);
   font-size: 18px;
 }
@@ -95,37 +112,61 @@ button {
 
 <body>
 
+<div class="bg" id="bg"></div>
+
 <div class="overlay">
+  <div class="container">
 
-<div class="container">
+    <h1>🚑 Jeevan Rakshak AI</h1>
 
-<h1>🚑 Jeevan Rakshak AI</h1>
+    <!-- 🌍 Language -->
+    <select id="lang">
+      <option value="en">English</option>
+      <option value="hi">हिंदी</option>
+      <option value="gu">ગુજરાતી</option>
+    </select>
 
-<select id="lang">
-  <option value="en">English</option>
-  <option value="hi">हिंदी</option>
-  <option value="gu">ગુજરાતી</option>
-</select>
+    <p id="label">Enter your symptoms:</p>
 
-<p id="label">Enter your symptoms:</p>
+    <!-- Input -->
+    <textarea id="symptoms" placeholder="e.g. fever, chest pain"></textarea>
 
-<textarea id="symptoms" placeholder="e.g. fever, chest pain"></textarea>
+    <!-- Buttons -->
+    <button class="analyze" onclick="analyze()">🔍 Analyze</button>
+    <button class="voice" onclick="startVoice()">🎤 Speak</button>
+    <button class="map" onclick="openMap()">🏥 Nearby Hospital</button>
 
-<button class="analyze" onclick="analyze()">🔍 Analyze</button>
-<button class="voice" onclick="startVoice()">🎤 Speak</button>
-<button class="map" onclick="openMap()">🏥 Nearby Hospital</button>
+    <!-- Result -->
+    <div id="resultBox"></div>
 
-<div id="resultBox"></div>
-
-</div>
-
+  </div>
 </div>
 
 <script>
+// 🌄 Background Images
+const images = [
+  "https://images.unsplash.com/photo-1588776814546-ec7e3f7f9e1b",
+  "https://images.unsplash.com/photo-1579684385127-1ef15d508118",
+  "https://images.unsplash.com/photo-1580281657527-47a1bba1c7c3",
+  "https://images.unsplash.com/photo-1584515933487-779824d29309"
+];
+
+let index = 0;
+
+function changeBackground() {
+  document.getElementById("bg").style.backgroundImage =
+    `url(${images[index]})`;
+  index = (index + 1) % images.length;
+}
+
+setInterval(changeBackground, 5000);
+changeBackground();
+
+// 🌍 Language text
 const text = {
-  en: { label: "Enter your symptoms:", alert: "Enter symptoms" },
-  hi: { label: "अपने लक्षण लिखें:", alert: "लक्षण दर्ज करें" },
-  gu: { label: "તમારા લક્ષણો લખો:", alert: "લક્ષણો દાખલ કરો" }
+  en: { label: "Enter your symptoms:" },
+  hi: { label: "अपने लक्षण लिखें:" },
+  gu: { label: "તમારા લક્ષણો લખો:" }
 };
 
 document.getElementById("lang").addEventListener("change", function() {
@@ -133,6 +174,7 @@ document.getElementById("lang").addEventListener("change", function() {
   document.getElementById("label").innerText = text[lang].label;
 });
 
+// 🚀 Analyze
 async function analyze() {
   let symptoms = document.getElementById("symptoms").value;
 
@@ -153,6 +195,7 @@ async function analyze() {
     "<b>Level:</b> " + data.level + "<br><b>Advice:</b> " + data.advice;
 }
 
+// 🎤 Voice
 function startVoice() {
   let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.onresult = e => {
@@ -161,6 +204,7 @@ function startVoice() {
   recognition.start();
 }
 
+// 🏥 Map
 function openMap() {
   window.open("https://www.google.com/maps/search/hospital+near+me");
 }
