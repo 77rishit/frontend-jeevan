@@ -12,7 +12,7 @@ body {
   justify-content:center;
   align-items:center;
   font-family:Arial;
-  background:#111;
+  background:#0f172a;
 }
 
 .container {
@@ -20,9 +20,10 @@ body {
   max-width:400px;
   padding:20px;
   border-radius:20px;
-  background:#2c2c2c;
+  background:#1e293b;
   color:white;
   text-align:center;
+  box-shadow:0 0 25px rgba(0,0,0,0.6);
 }
 
 textarea {
@@ -31,6 +32,7 @@ textarea {
   border-radius:10px;
   padding:10px;
   margin-top:10px;
+  border:none;
 }
 
 button {
@@ -42,19 +44,30 @@ button {
   color:white;
   font-size:15px;
   cursor:pointer;
+  transition:0.2s;
 }
 
-.analyze {background:red;}
-.speak {background:green;}
-.map {background:blue;}
+button:hover {
+  transform:scale(1.03);
+}
+
+.analyze {background:#ef4444;}
+.speak {background:#22c55e;}
+.map {background:#3b82f6;}
 
 #resultBox {
   margin-top:15px;
-  padding:10px;
+  padding:12px;
   border-radius:10px;
-  background:#444;
+  background:#334155;
   text-align:left;
   white-space:pre-line;
+}
+
+select {
+  margin-top:10px;
+  padding:5px;
+  border-radius:6px;
 }
 </style>
 </head>
@@ -85,7 +98,7 @@ button {
 
 <script>
 
-/* ANALYZE FUNCTION */
+/* ANALYZE */
 async function analyze(){
 
 let s = document.getElementById("symptoms").value;
@@ -111,7 +124,6 @@ lang: lang
 
 let data = await res.json();
 
-/* DISPLAY RESULT */
 document.getElementById("resultBox").innerHTML =
 "<b>" + data.level + "</b><br><br>" + data.advice;
 
@@ -122,7 +134,7 @@ alert("Server error");
 }
 
 
-/* SPEAK FUNCTION */
+/* SPEAK */
 function speak(){
 
 let text = document.getElementById("resultBox").innerText;
@@ -137,14 +149,18 @@ let speech = new SpeechSynthesisUtterance(text);
 
 if(lang === "hi") speech.lang = "hi-IN";
 else if(lang === "gu") speech.lang = "gu-IN";
-else speech.lang = "en-IN";
+else speech.lang = "en-US";
 
+speech.rate = 1;
+speech.pitch = 1;
+
+window.speechSynthesis.cancel();
 window.speechSynthesis.speak(speech);
 
 }
 
 
-/* GOOGLE MAP */
+/* MAP */
 function openMap(){
 window.open("https://www.google.com/maps/search/hospital+near+me");
 }
