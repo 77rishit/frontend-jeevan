@@ -17,68 +17,71 @@ def analyze(data: Input):
 
     text = data.symptoms.lower()
 
-    # 🔴 CRITICAL (35+)
+    # 🔴 CRITICAL (40+)
     critical_keywords = [
         # English
-        "chest pain", "heart attack", "breathing difficulty", "shortness of breath",
-        "unconscious", "fainting", "severe bleeding", "stroke", "paralysis",
-        "seizure", "convulsion", "cardiac arrest", "blue lips", "no pulse",
-        "vomiting blood", "coughing blood", "head injury", "fracture",
-        "electric shock", "burn severe", "poison", "overdose", "suicide",
-        "anaphylaxis", "choking", "severe pain", "internal bleeding",
-        "collapsed", "coma", "severe allergy",
+        "chest pain","heart attack","breathing difficulty","shortness of breath",
+        "unconscious","fainting","severe bleeding","stroke","paralysis",
+        "seizure","convulsion","cardiac arrest","blue lips","no pulse",
+        "vomiting blood","coughing blood","head injury","fracture",
+        "electric shock","burn severe","poison","overdose","suicide",
+        "anaphylaxis","choking","internal bleeding","coma",
+        "severe allergy","collapse",
 
         # Hindi
-        "सीने में दर्द", "दिल का दौरा", "सांस लेने में दिक्कत", "बेहोश",
-        "खून बहना", "लकवा", "दौरा", "जहर", "ओवरडोज",
-        "गंभीर दर्द", "सांस रुकना",
+        "सीने में दर्द","दिल का दौरा","सांस लेने में दिक्कत","बेहोश",
+        "खून बहना","लकवा","दौरा","नीले होंठ","नाड़ी नहीं",
+        "खून की उल्टी","सिर की चोट","जहर","ओवरडोज",
+        "आत्महत्या","घुटन","कोमा","गंभीर एलर्जी",
 
         # Gujarati
-        "છાતીમાં દુખાવો", "હાર્ટ એટેક", "શ્વાસ લેવામાં તકલીફ", "બેભાન",
-        "રક્તસ્ત્રાવ", "લકવો", "ઝટકો", "ઝેર", "ઓવરડોઝ",
-        "ભારે દુખાવો", "શ્વાસ બંધ"
+        "છાતીમાં દુખાવો","હાર્ટ એટેક","શ્વાસ લેવામાં તકલીફ","બેહોશ",
+        "ખૂન વહેવું","લકવો","આંચકો","નીલા હોઠ","નાડી નથી",
+        "ખૂન ની ઉલ્ટી","માથાની ઇજા","ઝેર","ઓવરડોઝ",
+        "આત્મહત્યા","ઘૂંટણ","કોમા","ગંભીર એલર્જી"
     ]
 
     # 🟠 MODERATE (40+)
     moderate_keywords = [
         # English
-        "fever", "high fever", "persistent fever", "headache", "migraine",
-        "vomiting", "nausea", "diarrhea", "stomach pain", "abdominal pain",
-        "back pain", "joint pain", "body pain", "fatigue", "weakness",
-        "dizziness", "cold", "cough", "sore throat", "infection",
-        "rash", "swelling", "burn", "minor fracture", "ear pain",
-        "tooth pain", "eye pain", "blurred vision", "urine infection",
-        "dehydration", "heatstroke", "gas", "acidity", "indigestion",
-        "chills", "body ache", "loss of appetite",
+        "fever","high fever","persistent fever","headache","migraine",
+        "vomiting","nausea","diarrhea","stomach pain","abdominal pain",
+        "back pain","joint pain","body pain","fatigue","weakness",
+        "dizziness","cold","cough","sore throat","infection",
+        "rash","swelling","burn minor","ear pain","tooth pain",
+        "eye pain","blurred vision","urine infection",
+        "dehydration","heatstroke","acidity","indigestion",
+        "chills","loss of appetite",
 
         # Hindi
-        "बुखार", "सिर दर्द", "उल्टी", "मतली", "दस्त",
-        "पेट दर्द", "कमर दर्द", "खांसी", "जुकाम", "संक्रमण",
-        "सूजन", "आंख दर्द", "दांत दर्द", "चक्कर", "कमजोरी",
-        "गैस", "अम्लता",
+        "बुखार","तेज बुखार","सिरदर्द","उल्टी","मतली","दस्त",
+        "पेट दर्द","कमर दर्द","जोड़ दर्द","थकान","कमजोरी",
+        "चक्कर","खांसी","जुकाम","गले में दर्द","संक्रमण",
+        "सूजन","जलन","कान दर्द","दांत दर्द","आंख दर्द",
+        "धुंधला दिखना","पेशाब संक्रमण","डिहाइड्रेशन","गर्मी लगना",
 
         # Gujarati
-        "તાવ", "માથાનો દુખાવો", "ઉલ્ટી", "મળમળ", "ડાયરીયા",
-        "પેટમાં દુખાવો", "પીઠમાં દુખાવો", "ખાંસી", "ઠંડ",
-        "સંક્રમણ", "સોજો", "આંખમાં દુખાવો", "દાંતમાં દુખાવો",
-        "ચક્કર", "નબળાઈ", "ગેસ", "એસિડિટી"
+        "તાવ","ઉંચો તાવ","માથાનો દુખાવો","ઉલ્ટી","મચકું","દસ્ત",
+        "પેટ દુખાવો","કમર દુખાવો","સાંધાનો દુખાવો","થાક",
+        "નબળાઈ","ચક્કર","ખાંસી","ઠંડી","ગળાનો દુખાવો",
+        "ઇન્ફેક્શન","સૂજન","જલન","કાન દુખાવો","દાંત દુખાવો",
+        "આંખ દુખાવો","ધૂંધળી દ્રષ્ટિ","મૂત્ર ચેપ","ડિહાઇડ્રેશન"
     ]
 
     # 🟢 MILD (30+)
     mild_keywords = [
         # English
-        "tired", "slight fever", "mild headache", "sneezing", "runny nose",
-        "itching", "minor cold", "light cough", "small cut", "bruise",
-        "muscle soreness", "sleepy", "stress", "anxiety", "low energy",
-        "dry skin", "hair fall", "minor swelling", "leg pain", "neck pain",
+        "tired","sleepy","stress","anxiety","minor cold","runny nose",
+        "itching","dry skin","minor cut","small wound","mild headache",
+        "light fever","seasonal allergy","gas","bloating","burping",
 
         # Hindi
-        "थकान", "हल्का सिर दर्द", "छींक", "नाक बहना",
-        "खुजली", "तनाव", "चिंता", "नींद आना",
+        "थकान","नींद","तनाव","चिंता","हल्का जुकाम","नाक बहना",
+        "खुजली","सूखी त्वचा","छोटा कट","हल्का बुखार",
 
         # Gujarati
-        "થાક", "હળવો માથાનો દુખાવો", "છીંક", "નાક વહી",
-        "ખંજવાળ", "તણાવ", "ચિંતા", "ઉંઘ"
+        "થાક","ઊંઘ","તાણ","ચિંતા","હલકો તાવ","नाक વહેવું",
+        "ખંજવાળ","સુકી ત્વચા","નાનો કટ","હલકો દુખાવો"
     ]
 
     # 🔴 CRITICAL RESPONSE
@@ -86,18 +89,11 @@ def analyze(data: Input):
         if word in text:
             return {
                 "level": "🚨 Critical",
-                "advice": """Possible Condition: Life-threatening emergency
-
-Advice:
-Immediate medical attention required.
-
-Medicines:
-Do NOT self-medicate.
-
-Precautions:
-Rush to nearest hospital immediately.
-
-⚠️ Do not take any medicine without consulting a doctor."""
+                "advice": "Possible Condition: Life-threatening emergency\n\n"
+                          "Advice:\nImmediate medical attention required.\n\n"
+                          "Medicines:\nDo NOT self-medicate.\n\n"
+                          "Precautions:\nRush to nearest hospital immediately.\n\n"
+                          "⚠️ Do not take any medicine without consulting a doctor."
             }
 
     # 🟠 MODERATE RESPONSE
@@ -105,18 +101,11 @@ Rush to nearest hospital immediately.
         if word in text:
             return {
                 "level": "⚠️ Moderate",
-                "advice": """Possible Condition: Infection or illness
-
-Advice:
-Take rest and stay hydrated.
-
-Medicines:
-Paracetamol, ORS (basic support)
-
-Precautions:
-Monitor symptoms and consult doctor if condition worsens.
-
-⚠️ Do not take any medicine without consulting a doctor."""
+                "advice": "Possible Condition: Infection or illness\n\n"
+                          "Advice:\nTake rest and stay hydrated.\n\n"
+                          "Medicines:\nParacetamol, ORS\n\n"
+                          "Precautions:\nMonitor symptoms carefully.\n\n"
+                          "⚠️ Do not take any medicine without consulting a doctor."
             }
 
     # 🟢 MILD RESPONSE
@@ -124,27 +113,15 @@ Monitor symptoms and consult doctor if condition worsens.
         if word in text:
             return {
                 "level": "✅ Mild",
-                "advice": """Possible Condition: Minor issue
-
-Advice:
-Rest properly and maintain hydration.
-
-Medicines:
-Home remedies or basic OTC care
-
-Precautions:
-Avoid stress and maintain healthy routine.
-
-⚠️ Do not take any medicine without consulting a doctor."""
+                "advice": "Possible Condition: Minor issue\n\n"
+                          "Advice:\nRest properly and maintain hydration.\n\n"
+                          "Medicines:\nBasic home remedies\n\n"
+                          "Precautions:\nMaintain healthy routine.\n\n"
+                          "⚠️ Do not take any medicine without consulting a doctor."
             }
 
     # ❓ DEFAULT
     return {
         "level": "ℹ️ Unknown",
-        "advice": """Symptoms unclear.
-
-Advice:
-Consult a doctor for proper diagnosis.
-
-⚠️ Do not take any medicine without consulting a doctor."""
+        "advice": "Condition unclear.\n\n⚠️ Consult a doctor before taking any medication."
     }
