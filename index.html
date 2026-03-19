@@ -1,172 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>🚑 JeevanRakshak AI</title>
+  <meta charset="UTF-8">
+  <title>🚑 Jeevan Rakshak AI</title>
 
   <style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .bg {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      animation: slideShow 20s infinite;
-      z-index: -2;
-    }
-
-    @keyframes slideShow {
-      0% {background-image: url('https://images.unsplash.com/photo-1579684385127-1ef15d508118');}
-      33% {background-image: url('https://images.unsplash.com/photo-1580281657527-47a1bba1c7c3');}
-      66% {background-image: url('https://images.unsplash.com/photo-1584515933487-779824d29309');}
-      100% {background-image: url('https://images.unsplash.com/photo-1588776814546-1ffcf47267a5');}
-    }
-
-    .overlay {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      z-index: -1;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(15px);
-      padding: 30px;
-      border-radius: 20px;
-      width: 420px;
-      text-align: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #ff4e50, #f9d423);
       color: white;
+      text-align: center;
+      padding: 50px;
+    }
+
+    h1 {
+      font-size: 40px;
     }
 
     textarea {
-      width: 100%;
+      width: 300px;
       height: 100px;
-      border-radius: 12px;
-      border: none;
       padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
     }
 
     button {
-      margin-top: 10px;
-      padding: 12px;
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      background: #ff4b2b;
-      color: white;
+      margin-top: 15px;
+      padding: 10px 20px;
       font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: #000;
+      color: white;
       cursor: pointer;
     }
 
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 12px;
-      display: none;
-      color: black;
+    button:hover {
+      background-color: #333;
     }
 
-    .critical { background: #ffcccc; }
-    .moderate { background: #fff3cd; }
-    .safe { background: #d4edda; }
-
-    .call-btn { background: green; display: none; }
+    #resultBox {
+      margin-top: 30px;
+      font-size: 20px;
+      background: rgba(0,0,0,0.5);
+      padding: 20px;
+      border-radius: 15px;
+      display: inline-block;
+    }
   </style>
 </head>
 
 <body>
 
-<div class="bg"></div>
-<div class="overlay"></div>
+  <h1>🚑 Emergency AI Assistant</h1>
 
-<div class="card">
-  <h1>🚑 JeevanRakshak AI</h1>
+  <p>Enter your symptoms:</p>
 
-  <textarea id="symptoms" placeholder="Describe symptoms..."></textarea>
+  <textarea id="symptoms" placeholder="e.g. fever, chest pain"></textarea><br>
 
-  <button onclick="analyze()">🔍 Analyze</button>
-  <button onclick="startVoice('en-IN')">🎤 Speak (English)</button>
-  <button onclick="startVoice('hi-IN')">🎤 Speak (Hindi)</button>
+  <button onclick="analyze()">Check Emergency</button>
 
-  <div id="resultBox" class="result">
-    <h2 id="level"></h2>
-    <p id="advice"></p>
-  </div>
+  <div id="resultBox"></div>
 
-  <button id="callBtn" class="call-btn" onclick="callAmbulance()">📞 Call 108</button>
+  <!-- ✅ FINAL WORKING SCRIPT -->
+  <script>
+    async function analyze() {
+      let symptoms = document.getElementById("symptoms").value;
 
-  <button onclick="findHospital()">🏥 Find Nearby Hospital</button>
-</div>
+      if (!symptoms) {
+        alert("Please enter symptoms");
+        return;
+      }
 
-<script>
-function startVoice(lang) {
-  const recognition = new webkitSpeechRecognition();
-  recognition.lang = lang;
-  recognition.start();
+      try {
+        let response = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ symptoms: symptoms })
+        });
 
-  recognition.onresult = function(event) {
-    let speech = event.results[0][0].transcript;
-    document.getElementById("symptoms").value = speech;
-    analyze();
-  };
-}
+        let data = await response.json();
 
-async function analyze() {
-  let symptoms = document.getElementById("symptoms").value;
+        document.getElementById("resultBox").innerHTML =
+          "<b>Level:</b> " + data.level + "<br><b>Advice:</b> " + data.advice;
 
-  let response = await fetch("https://jeevanrakshak-ai.onrender.com/analyze", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ symptoms })
-  });
-
-  let data = await response.json();
-
-  let box = document.getElementById("resultBox");
-  box.style.display = "block";
-  box.className = "result";
-
-  document.getElementById("level").innerText = data.level;
-  document.getElementById("advice").innerText = data.advice;
-
-  if (data.level.includes("Critical")) {
-    box.classList.add("critical");
-    document.getElementById("callBtn").style.display = "block";
-  } else if (data.level.includes("Moderate")) {
-    box.classList.add("moderate");
-  } else {
-    box.classList.add("safe");
-  }
-}
-
-function callAmbulance() {
-  window.location.href = "tel:108";
-}
-
-function findHospital() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(position => {
-      let lat = position.coords.latitude;
-      let lon = position.coords.longitude;
-
-      let url = `https://www.google.com/maps/search/hospitals/@${lat},${lon},15z`;
-      window.open(url, "_blank");
-    });
-  } else {
-    alert("Location not supported");
-  }
-}
-</script>
+      } catch (error) {
+        alert("Server not responding");
+        console.log(error);
+      }
+    }
+  </script>
 
 </body>
 </html>
