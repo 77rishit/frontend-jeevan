@@ -5,60 +5,90 @@
 <title>🚑 Jeevan Rakshak AI</title>
 
 <style>
-body {
-  font-family: 'Segoe UI', sans-serif;
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  background: url('https://images.unsplash.com/photo-1588776814546-ec7e3f7f9e1b') no-repeat center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Overlay */
+.overlay {
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Main Card */
+.container {
+  width: 90%;
+  max-width: 600px;
+  padding: 30px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(15px);
   text-align: center;
   color: white;
-  background: url('https://images.unsplash.com/photo-1588776814546-ec7e3f7f9e1b') no-repeat center/cover;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
 }
 
-.overlay {
-  background: rgba(0,0,0,0.6);
-  min-height: 100vh;
-  padding: 30px;
-}
-
+/* Heading */
 h1 {
-  font-size: 40px;
+  font-size: 36px;
+  margin-bottom: 20px;
 }
 
-textarea {
-  width: 80%;
-  max-width: 400px;
-  height: 100px;
-  border-radius: 10px;
+/* Language dropdown */
+select {
   padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* Input */
+textarea {
+  width: 100%;
+  height: 120px;
+  border-radius: 12px;
+  border: none;
+  padding: 15px;
   font-size: 16px;
 }
 
+/* Buttons */
 button {
-  margin: 10px;
-  padding: 12px 20px;
-  border-radius: 10px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
   border: none;
   font-size: 16px;
   cursor: pointer;
 }
 
-.analyze { background: red; color: white; }
-.voice { background: green; color: white; }
-.map { background: blue; color: white; }
+.analyze { background: #ff4b2b; color: white; }
+.voice { background: #28a745; color: white; }
+.map { background: #007bff; color: white; }
 
+/* Result */
 #resultBox {
   margin-top: 20px;
-  font-size: 20px;
-  background: rgba(0,0,0,0.7);
   padding: 20px;
   border-radius: 15px;
-  display: inline-block;
-}
-
-select {
-  padding: 8px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  background: rgba(0,0,0,0.7);
+  font-size: 18px;
 }
 </style>
 </head>
@@ -66,6 +96,8 @@ select {
 <body>
 
 <div class="overlay">
+
+<div class="container">
 
 <h1>🚑 Jeevan Rakshak AI</h1>
 
@@ -77,9 +109,9 @@ select {
 
 <p id="label">Enter your symptoms:</p>
 
-<textarea id="symptoms" placeholder="e.g. fever, chest pain"></textarea><br>
+<textarea id="symptoms" placeholder="e.g. fever, chest pain"></textarea>
 
-<button class="analyze" onclick="analyze()">Check Emergency</button>
+<button class="analyze" onclick="analyze()">🔍 Analyze</button>
 <button class="voice" onclick="startVoice()">🎤 Speak</button>
 <button class="map" onclick="openMap()">🏥 Nearby Hospital</button>
 
@@ -87,75 +119,48 @@ select {
 
 </div>
 
+</div>
+
 <script>
-// 🌍 Language Text
 const text = {
-  en: {
-    label: "Enter your symptoms:",
-    alert: "Please enter symptoms",
-    error: "Server error"
-  },
-  hi: {
-    label: "अपने लक्षण लिखें:",
-    alert: "लक्षण दर्ज करें",
-    error: "सर्वर त्रुटि"
-  },
-  gu: {
-    label: "તમારા લક્ષણો લખો:",
-    alert: "લક્ષણો દાખલ કરો",
-    error: "સર્વર ભૂલ"
-  }
+  en: { label: "Enter your symptoms:", alert: "Enter symptoms" },
+  hi: { label: "अपने लक्षण लिखें:", alert: "लक्षण दर्ज करें" },
+  gu: { label: "તમારા લક્ષણો લખો:", alert: "લક્ષણો દાખલ કરો" }
 };
 
-// 🌍 Change Language
 document.getElementById("lang").addEventListener("change", function() {
   let lang = this.value;
   document.getElementById("label").innerText = text[lang].label;
 });
 
-// 🚀 Analyze Function
 async function analyze() {
   let symptoms = document.getElementById("symptoms").value;
-  let lang = document.getElementById("lang").value;
 
   if (!symptoms) {
-    alert(text[lang].alert);
+    alert("Enter symptoms");
     return;
   }
 
-  try {
-    let response = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ symptoms })
-    });
+  let response = await fetch("https://jeevanrakshakai.onrender.com/analyze", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ symptoms })
+  });
 
-    let data = await response.json();
+  let data = await response.json();
 
-    document.getElementById("resultBox").innerHTML =
-      "<b>Level:</b> " + data.level + "<br><b>Advice:</b> " + data.advice;
-
-  } catch (error) {
-    alert(text[lang].error);
-    console.log(error);
-  }
+  document.getElementById("resultBox").innerHTML =
+    "<b>Level:</b> " + data.level + "<br><b>Advice:</b> " + data.advice;
 }
 
-// 🎤 Voice Input
 function startVoice() {
   let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.lang = "en-US";
-
-  recognition.onresult = function(event) {
-    document.getElementById("symptoms").value = event.results[0][0].transcript;
+  recognition.onresult = e => {
+    document.getElementById("symptoms").value = e.results[0][0].transcript;
   };
-
   recognition.start();
 }
 
-// 🏥 Open Map
 function openMap() {
   window.open("https://www.google.com/maps/search/hospital+near+me");
 }
